@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigo Ouro | Sistema Integrado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<div class="wrapper flex-grow-1">
+    <!-- MENU LATERAL -->
+    <div class="sidebar d-none d-md-block">
+        <div class="brand"><i class="fa-solid fa-wheat-awn"></i> TRIGO OURO</div>
+        <div class="nav flex-column nav-pills">
+            <a class="nav-link active" onclick="nav('dashboard', this)"><i class="fa-solid fa-satellite-dish me-2"></i> Centro de Controle</a>
+            <a class="nav-link" onclick="nav('estoque', this)"><i class="fa-solid fa-triangle-exclamation me-2"></i> Perdas & Validade</a>
+            <a class="nav-link" onclick="nav('kds', this)"><i class="fa-solid fa-fire-burner me-2"></i> KDS (Cozinha)</a>
+            <a class="nav-link" onclick="nav('demanda', this)"><i class="fa-solid fa-brain me-2"></i> IA de Demanda</a>
+            <a class="nav-link" onclick="nav('fichas', this)"><i class="fa-solid fa-calculator me-2"></i> Fichas & Custos</a>
+            <a class="nav-link text-warning" onclick="nav('caixa', this)"><i class="fa-solid fa-cash-register me-2"></i> PDV Caixa</a>
+        </div>
+    </div>
+
+    <!-- ÁREA DE CONTEÚDO -->
+    <div class="content-area">
+        
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="section-pane active">
+            <h3 class="mb-4 text-dark fw-bold">O que precisa da sua atenção agora?</h3>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card problem-card critical p-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted mb-1">Risco de Perda Total</h6>
+                                <h3 class="text-danger mb-0" id="dash-total-risco">R$ 340,00</h3>
+                                <small class="text-dark fw-bold">Validade + Desperdício</small>
+                            </div>
+                            <i class="fa-solid fa-trash-can-arrow-up fa-2x text-danger opacity-50"></i>
+                        </div><hr>
+                        <button class="btn btn-sm btn-outline-danger w-100" onclick="nav('estoque', document.querySelectorAll('.nav-link')[1])">Ver Detalhes</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card problem-card warning p-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted mb-1">Gargalo na Cozinha</h6>
+                                <h3 class="text-warning mb-0">Pedidos na Fila</h3>
+                                <small class="text-dark fw-bold">Atenção aos atrasados</small>
+                            </div>
+                            <i class="fa-solid fa-stopwatch fa-2x text-warning opacity-50"></i>
+                        </div><hr>
+                        <button class="btn btn-sm btn-outline-warning w-100 text-dark" onclick="nav('kds', document.querySelectorAll('.nav-link')[2])">Verificar Tela</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-clipboard-check text-primary"></i> Checklist de Operação Rápida</h5>
+                <div class="form-check"><input class="form-check-input" type="checkbox" id="t1" onchange="checkTasks()"><label class="form-check-label" for="t1">Aprovar pedido de Farinha</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" id="t2" onchange="checkTasks()"><label class="form-check-label" for="t2">Realizar sangria do Caixa</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" id="t3" onchange="checkTasks()"><label class="form-check-label" for="t3">Aferir temperatura dos freezers</label></div>
+                <div id="alertaTask" class="alert alert-success mt-3 d-none"><i class="fa-solid fa-check-circle"></i> Tarefas concluídas!</div>
+            </div>
+        </div>
+
+        <!-- 1. PERDAS E VALIDADE -->
+        <div id="estoque" class="section-pane">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="text-dark fw-bold mb-1">Gestão de Perdas (FEFO)</h3>
+                    <p class="text-muted mb-0">Prevenção e registro de perdas financeiras na operação.</p>
+                </div>
+                <span class="badge bg-danger fs-6 p-2" id="totalRiscoBadge">Total em Risco: R$ 340,00</span>
+            </div>
+
+            <div class="mb-4 p-3 bg-light rounded border-start border-4 border-danger d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-danger fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Registrar Item em Risco / Desperdício</h6>
+                    <small class="text-muted">Anotar perdas ou itens próximos do vencimento.</small>
+                </div>
+                <button class="btn btn-danger" onclick="lancarDesperdicio()">
+                    <i class="fa-solid fa-plus"></i> Lançar Item
+                </button>
+            </div>
+
+            <div id="alertaValidade" class="alert alert-success d-none mb-3 shadow-sm"></div>
+            <div class="card border-0 shadow-sm p-4" style="overflow-x: auto;">
+                <table class="table align-middle mb-0" id="tabelaValidade">
+                    <thead><tr><th>Produto</th><th>Valor</th><th>Status / Vencimento</th><th class="text-end" style="min-width: 250px;">Ação de Resolução</th></tr></thead>
+                    <tbody>
+                        <tr id="linhaLeite">
+                            <td><strong>Leite Integral (50L)</strong></td><td class="text-danger fw-bold">R$ 220,00</td><td><span class="badge bg-danger">Amanhã - Em Risco</span></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-warning text-dark mb-1 w-100" onclick="resolverProblema('linhaLeite', 'Transferido para produção!', 220)">Transferir p/ Produção</button>
+                                <button class="btn btn-sm btn-success mb-1 w-100" onclick="resolverProblema('linhaLeite', 'Criado combo promocional!', 220)">Criar Promoção</button>
+                            </td>
+                        </tr>
+                        <tr id="linhaPresunto">
+                            <td><strong>Presunto Cozido (5kg)</strong></td><td class="text-danger fw-bold">R$ 120,00</td><td><span class="badge bg-warning text-dark">Em 2 dias - Atenção</span></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-warning text-dark mb-1 w-100" onclick="resolverProblema('linhaPresunto', 'Transferido para produção!', 120)">Transferir p/ Produção</button>
+                                <button class="btn btn-sm btn-success mb-1 w-100" onclick="resolverProblema('linhaPresunto', 'Criado combo promocional!', 120)">Criar Promoção</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. KDS COZINHA -->
+        <div id="kds" class="section-pane">
+            <h3 class="mb-4 text-dark fw-bold">Painel de Produção (KDS)</h3>
+            <div class="kds-board">
+                <div class="kds-column" id="kds-fila">
+                    <h6 class="text-uppercase text-muted fw-bold mb-3">Fila de Entrada</h6>
+                    <div class="kds-card" id="pedido-mesa4">
+                        <h5 class="fw-bold text-dark">MESA 4</h5>
+                        <ul><li>3x Pão Francês</li><li>1x Café Expresso</li></ul>
+                        <button class="btn btn-sm btn-dark w-100" onclick="moverKDS('pedido-mesa4', 'kds-preparo')">Iniciar Preparo</button>
+                    </div>
+                    <div class="kds-card" id="pedido-mesa8">
+                        <h5 class="fw-bold text-dark">MESA 8</h5>
+                        <ul><li>1x Bolo Caseiro</li><li>2x Suco</li></ul>
+                        <button class="btn btn-sm btn-dark w-100" onclick="moverKDS('pedido-mesa8', 'kds-preparo')">Iniciar Preparo</button>
+                    </div>
+                    <div class="kds-card delayed" id="pedido-mesa12">
+                        <h5 class="fw-bold text-danger">MESA 12 <i class="fa-solid fa-triangle-exclamation"></i></h5>
+                        <ul><li>2x Omelete</li><li>1x Suco</li></ul>
+                        <button class="btn btn-sm btn-dark w-100" onclick="moverKDS('pedido-mesa12', 'kds-preparo')">Iniciar Preparo</button>
+                    </div>
+                </div>
+                <div class="kds-column" id="kds-preparo"><h6 class="text-uppercase text-muted fw-bold mb-3">Em Preparo</h6></div>
+                <div class="kds-column" id="kds-pronto"><h6 class="text-uppercase text-success fw-bold mb-3">Pronto</h6></div>
+            </div>
+        </div>
+
+        <!-- 3. IA DE DEMANDA -->
+        <div id="demanda" class="section-pane">
+            <h3 class="mb-4 text-dark fw-bold">Inteligência de Produção</h3>
+            <div class="card border-0 shadow-sm p-4">
+                <select id="simuladorClima" class="form-select form-select-sm w-auto mb-3" onchange="atualizarIA()">
+                    <option value="normal">Selecione a Previsão (Simulador)</option>
+                    <option value="frio">Frente Fria (Inverno)</option>
+                    <option value="sol">Dia de Calor Intenso</option>
+                </select>
+                <p id="ia-texto" class="fw-bold text-primary">Aguardando cenário...</p>
+                <ul class="list-group list-group-flush" id="ia-lista"></ul>
+            </div>
+        </div>
+
+        <!-- 4. FICHAS E CUSTOS -->
+        <div id="fichas" class="section-pane">
+            <h3 class="mb-4 text-dark fw-bold">Simulador de Precificação</h3>
+            <div class="card border-0 shadow-sm p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5>Bolo de Cenoura c/ Chocolate</h5>
+                        <p class="text-muted">Ingredientes da Ficha: Farinha, Cenoura, Chocolate, Ovos.</p>
+                    </div>
+                    <div class="col-md-6 bg-light p-4 rounded text-center">
+                        <h6>Custo Base: <span id="custo-base">19.50</span></h6>
+                        <label class="fw-bold mt-2">Margem de Lucro Desejada (%)</label>
+                        <input type="number" id="input-markup" class="form-control text-center mx-auto mb-2" style="width: 120px;" value="150" onkeyup="calcularPreco()" onchange="calcularPreco()">
+                        <h2 class="text-success fw-bold mt-3" id="preco-final">R$ 48,75</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. PDV CAIXA -->
+        <div id="caixa" class="section-pane">
+            <h3 class="mb-4 text-dark fw-bold">PDV Caixa Rápido</h3>
+            <div class="row">
+                <!-- Menu com 40 itens e rolagem -->
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm p-3" style="max-height: 600px; overflow-y: auto;">
+                        <div class="row g-2">
+                            <!-- Bloco 1: Pães e Salgados -->
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pão Francês', 0.80)"><h6 class="mb-1" style="font-size:13px;">Pão Francês</h6><small>R$ 0,80</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pão de Queijo', 3.50)"><h6 class="mb-1" style="font-size:13px;">Pão de Queijo</h6><small>R$ 3,50</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Coxinha', 7.00)"><h6 class="mb-1" style="font-size:13px;">Coxinha</h6><small>R$ 7,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Croissant', 10.00)"><h6 class="mb-1" style="font-size:13px;">Croissant</h6><small>R$ 10,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Empada', 8.00)"><h6 class="mb-1" style="font-size:13px;">Empada</h6><small>R$ 8,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pastel de Carne', 9.00)"><h6 class="mb-1" style="font-size:13px;">Pastel de Carne</h6><small>R$ 9,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pastel Queijo', 9.00)"><h6 class="mb-1" style="font-size:13px;">Pastel Queijo</h6><small>R$ 9,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Esfiha Carne', 6.50)"><h6 class="mb-1" style="font-size:13px;">Esfiha Carne</h6><small>R$ 6,50</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pão Doce', 4.50)"><h6 class="mb-1" style="font-size:13px;">Pão Doce</h6><small>R$ 4,50</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pão Integral', 12.00)"><h6 class="mb-1" style="font-size:13px;">Pão Integral</h6><small>R$ 12,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pão de Batata', 7.50)"><h6 class="mb-1" style="font-size:13px;">Pão de Batata</h6><small>R$ 7,50</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Biscoito Polvilho', 5.50)"><h6 class="mb-1" style="font-size:13px;">Biscoito Polvilho</h6><small>R$ 5,50</small></div></div>
+                            
+                            <!-- Bloco 2: Lanches -->
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Misto Quente', 12.00)"><h6 class="mb-1" style="font-size:13px;">Misto Quente</h6><small>R$ 12,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Bauru', 15.00)"><h6 class="mb-1" style="font-size:13px;">Bauru</h6><small>R$ 15,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pão na Chapa', 5.00)"><h6 class="mb-1" style="font-size:13px;">Pão na Chapa</h6><small>R$ 5,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Sanduíche Nat.', 16.00)"><h6 class="mb-1" style="font-size:13px;">Sanduíche Nat.</h6><small>R$ 16,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Beirute', 22.00)"><h6 class="mb-1" style="font-size:13px;">Beirute</h6><small>R$ 22,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Tapioca', 14.00)"><h6 class="mb-1" style="font-size:13px;">Tapioca</h6><small>R$ 14,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Omelete', 15.00)"><h6 class="mb-1" style="font-size:13px;">Omelete</h6><small>R$ 15,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Torrada', 6.00)"><h6 class="mb-1" style="font-size:13px;">Torrada</h6><small>R$ 6,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Torta de Frango', 14.00)"><h6 class="mb-1" style="font-size:13px;">Torta Frango</h6><small>R$ 14,00</small></div></div>
+
+                            <!-- Bloco 3: Doces -->
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Bolo Caseiro', 8.50)"><h6 class="mb-1" style="font-size:13px;">Bolo Caseiro</h6><small>R$ 8,50</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Bolo Cenoura', 10.00)"><h6 class="mb-1" style="font-size:13px;">Bolo Cenoura</h6><small>R$ 10,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Brigadeiro', 4.50)"><h6 class="mb-1" style="font-size:13px;">Brigadeiro</h6><small>R$ 4,50</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Pudim', 12.00)"><h6 class="mb-1" style="font-size:13px;">Pudim</h6><small>R$ 12,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Sonho', 6.00)"><h6 class="mb-1" style="font-size:13px;">Sonho</h6><small>R$ 6,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Torta Limão', 13.00)"><h6 class="mb-1" style="font-size:13px;">Torta Limão</h6><small>R$ 13,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Torta Morango', 14.00)"><h6 class="mb-1" style="font-size:13px;">Torta Morango</h6><small>R$ 14,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Açaí Tigela', 18.00)"><h6 class="mb-1" style="font-size:13px;">Açaí Tigela</h6><small>R$ 18,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Salada Frutas', 10.00)"><h6 class="mb-1" style="font-size:13px;">Salada Frutas</h6><small>R$ 10,00</small></div></div>
+
+                            <!-- Bloco 4: Bebidas -->
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Café Expresso', 6.00)"><h6 class="mb-1" style="font-size:13px;">Café Expresso</h6><small>R$ 6,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Café c/ Leite', 7.50)"><h6 class="mb-1" style="font-size:13px;">Café c/ Leite</h6><small>R$ 7,50</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Capuccino', 11.00)"><h6 class="mb-1" style="font-size:13px;">Capuccino</h6><small>R$ 11,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Suco Laranja', 9.00)"><h6 class="mb-1" style="font-size:13px;">Suco Laranja</h6><small>R$ 9,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Suco de Uva', 10.00)"><h6 class="mb-1" style="font-size:13px;">Suco de Uva</h6><small>R$ 10,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Vitamina Frutas', 12.00)"><h6 class="mb-1" style="font-size:13px;">Vitamina Frutas</h6><small>R$ 12,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Refrigerante', 6.50)"><h6 class="mb-1" style="font-size:13px;">Refrigerante</h6><small>R$ 6,50</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Chá Gelado', 8.00)"><h6 class="mb-1" style="font-size:13px;">Chá Gelado</h6><small>R$ 8,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Água Mineral', 4.00)"><h6 class="mb-1" style="font-size:13px;">Água Mineral</h6><small>R$ 4,00</small></div></div>
+                            <div class="col-md-3 col-6"><div class="pdv-item p-2" onclick="addPDV('Água com Gás', 4.50)"><h6 class="mb-1" style="font-size:13px;">Água com Gás</h6><small>R$ 4,50</small></div></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Comanda Lateral -->
+                <div class="col-md-4">
+                    <div class="cupom-fiscal shadow-sm h-100">
+                        <h5 class="text-center fw-bold">Comanda Atual</h5><hr>
+                        <div class="cupom-lista" id="lista-comanda"></div>
+                        <hr>
+                        <h4>TOTAL: <span class="text-success">R$ <span id="total-pdv">0.00</span></span></h4>
+                        <button class="btn btn-success btn-lg w-100 fw-bold mt-2" onclick="finalizarCompra()">FINALIZAR & ENVIAR (KDS)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
