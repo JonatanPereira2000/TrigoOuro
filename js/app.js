@@ -24,6 +24,9 @@ function atualizarDisplaysRisco() {
     let badge = document.getElementById('totalRiscoBadge');
     if(totalRisco <= 0) {
         badge.className = "badge bg-success fs-6 p-2";
+        // Oculta o banner gigante de aviso quando tudo for resolvido
+        let alertaTopo = document.getElementById('alerta-vencimentos-topo');
+        if(alertaTopo) alertaTopo.style.display = 'none';
     } else {
         badge.className = "badge bg-danger fs-6 p-2";
     }
@@ -38,14 +41,14 @@ function resolverProblema(id, msg, valor) {
         atualizarDisplaysRisco();
         
         let alerta = document.getElementById('alertaValidade');
-        alerta.innerHTML = `<strong>Resolvido:</strong> ${msg}`;
+        alerta.innerHTML = `<strong>Ação Confirmada:</strong> ${msg}`;
         alerta.classList.remove('d-none');
-        setTimeout(() => alerta.classList.add('d-none'), 3000);
+        setTimeout(() => alerta.classList.add('d-none'), 3500);
     }, 300);
 }
 
 function lancarDesperdicio() {
-    let item = prompt("Qual produto deseja lançar? (Ex: Fornada de Pão Queimada, Queijo Próximo ao Vencimento)");
+    let item = prompt("Qual produto deseja lançar? (Ex: Leite Vencido, Ovos Quebrados)");
     if (!item) return;
     
     let valorStr = prompt("Qual o valor estimado deste item? (Ex: 45.50)");
@@ -54,7 +57,6 @@ function lancarDesperdicio() {
     let valor = parseFloat(valorStr.replace(',', '.'));
     if (isNaN(valor)) return alert("Por favor, insira um número válido.");
 
-    // Novos dados solicitados
     let vencimento = prompt("Qual a data de vencimento? (Ex: 20/10/2026, Vence Amanhã)");
     if (!vencimento) vencimento = "Não informada";
 
@@ -66,15 +68,16 @@ function lancarDesperdicio() {
 
     let idNovaLinha = 'desp-' + Date.now();
     
-    // Adiciona a linha na tabela com as informações novas e os botões exigidos
     document.querySelector('#tabelaValidade tbody').innerHTML += `
         <tr id="${idNovaLinha}">
             <td><strong>${item}</strong></td>
             <td class="text-danger fw-bold">R$ ${valor.toFixed(2).replace('.', ',')}</td>
             <td><span class="badge bg-secondary">${vencimento} - ${status}</span></td>
             <td class="text-end">
-                <button class="btn btn-sm btn-warning text-dark mb-1 w-100" onclick="resolverProblema('${idNovaLinha}', 'Transferido para produção!', ${valor})">Transferir p/ Produção</button>
-                <button class="btn btn-sm btn-success mb-1 w-100" onclick="resolverProblema('${idNovaLinha}', 'Criado combo promocional!', ${valor})">Criar Promoção</button>
+                <button class="btn btn-sm btn-warning text-dark fw-bold mb-1 w-100" onclick="resolverProblema('${idNovaLinha}', 'Produto transferido para ser usado em Bolos/Produção!', ${valor})">
+                    <i class="fa-solid fa-cake-candles"></i> Usar p/ Fazer Bolo
+                </button>
+                <button class="btn btn-sm btn-success mb-1 w-100" onclick="resolverProblema('${idNovaLinha}', 'Criado combo promocional para esgotar stock!', ${valor})">Criar Promoção</button>
             </td>
         </tr>
     `;

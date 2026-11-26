@@ -37,7 +37,7 @@
                             <div>
                                 <h6 class="text-muted mb-1">Risco de Perda Total</h6>
                                 <h3 class="text-danger mb-0" id="dash-total-risco">R$ 340,00</h3>
-                                <small class="text-dark fw-bold">Validade + Desperdício</small>
+                                <small class="text-dark fw-bold">1 Vencendo Hoje | 1 Perto de Vencer</small>
                             </div>
                             <i class="fa-solid fa-trash-can-arrow-up fa-2x text-danger opacity-50"></i>
                         </div><hr>
@@ -71,16 +71,25 @@
         <div id="estoque" class="section-pane">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 class="text-dark fw-bold mb-1">Gestão de Perdas (FEFO)</h3>
-                    <p class="text-muted mb-0">Prevenção e registro de perdas financeiras na operação.</p>
+                    <h3 class="text-dark fw-bold mb-1">Gestão de Perdas e Validades</h3>
+                    <p class="text-muted mb-0">Monitorize vencimentos e registe desperdícios.</p>
                 </div>
                 <span class="badge bg-danger fs-6 p-2" id="totalRiscoBadge">Total em Risco: R$ 340,00</span>
             </div>
 
+            <!-- NOVO: Banner Global de Alerta de Vencimentos -->
+            <div id="alerta-vencimentos-topo" class="alert alert-danger shadow-sm border-danger border-2 d-flex align-items-center mb-4">
+                <i class="fa-solid fa-triangle-exclamation fa-3x me-3 text-danger"></i>
+                <div>
+                    <h5 class="mb-0 fw-bold text-danger">ALERTAS DE VENCIMENTO ATIVOS!</h5>
+                    <span>Existem produtos <strong>VENCENDO HOJE</strong> e <strong>PERTO DE VENCER</strong> no estoque. Utilize-os na produção (fazer bolos, salgados, etc) para evitar prejuízos.</span>
+                </div>
+            </div>
+
             <div class="mb-4 p-3 bg-light rounded border-start border-4 border-danger d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="text-danger fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Registrar Item em Risco / Desperdício</h6>
-                    <small class="text-muted">Anotar perdas ou itens próximos do vencimento.</small>
+                    <h6 class="text-danger fw-bold mb-1"><i class="fa-solid fa-plus-circle"></i> Lançamento Manual</h6>
+                    <small class="text-muted">Anotar novas perdas por acidentes ou itens encontrados vencidos.</small>
                 </div>
                 <button class="btn btn-danger" onclick="lancarDesperdicio()">
                     <i class="fa-solid fa-plus"></i> Lançar Item
@@ -92,18 +101,28 @@
                 <table class="table align-middle mb-0" id="tabelaValidade">
                     <thead><tr><th>Produto</th><th>Valor</th><th>Status / Vencimento</th><th class="text-end" style="min-width: 250px;">Ação de Resolução</th></tr></thead>
                     <tbody>
+                        <!-- ITEM VENCENDO HOJE -->
                         <tr id="linhaLeite">
-                            <td><strong>Leite Integral (50L)</strong></td><td class="text-danger fw-bold">R$ 220,00</td><td><span class="badge bg-danger">Amanhã - Em Risco</span></td>
+                            <td><strong>Leite Integral (50L)</strong></td>
+                            <td class="text-danger fw-bold">R$ 220,00</td>
+                            <td><span class="badge bg-danger badge-vencendo p-2 fs-6"><i class="fa-solid fa-circle-exclamation"></i> VENCENDO HOJE</span></td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-warning text-dark mb-1 w-100" onclick="resolverProblema('linhaLeite', 'Transferido para produção!', 220)">Transferir p/ Produção</button>
-                                <button class="btn btn-sm btn-success mb-1 w-100" onclick="resolverProblema('linhaLeite', 'Criado combo promocional!', 220)">Criar Promoção</button>
+                                <button class="btn btn-sm btn-warning text-dark fw-bold mb-1 w-100" onclick="resolverProblema('linhaLeite', 'Leite utilizado para FAZER BOLO e doces! Desperdício evitado.', 220)">
+                                    <i class="fa-solid fa-cake-candles"></i> Usar p/ Fazer Bolo
+                                </button>
+                                <button class="btn btn-sm btn-success mb-1 w-100" onclick="resolverProblema('linhaLeite', 'Criado combo promocional de Café com Leite!', 220)">Criar Promoção</button>
                             </td>
                         </tr>
+                        <!-- ITEM PERTO DE VENCER -->
                         <tr id="linhaPresunto">
-                            <td><strong>Presunto Cozido (5kg)</strong></td><td class="text-danger fw-bold">R$ 120,00</td><td><span class="badge bg-warning text-dark">Em 2 dias - Atenção</span></td>
+                            <td><strong>Presunto Cozido (5kg)</strong></td>
+                            <td class="text-danger fw-bold">R$ 120,00</td>
+                            <td><span class="badge bg-warning text-dark p-2 fs-6"><i class="fa-solid fa-clock"></i> PERTO DE VENCER (2 dias)</span></td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-warning text-dark mb-1 w-100" onclick="resolverProblema('linhaPresunto', 'Transferido para produção!', 120)">Transferir p/ Produção</button>
-                                <button class="btn btn-sm btn-success mb-1 w-100" onclick="resolverProblema('linhaPresunto', 'Criado combo promocional!', 120)">Criar Promoção</button>
+                                <button class="btn btn-sm btn-warning text-dark fw-bold mb-1 w-100" onclick="resolverProblema('linhaPresunto', 'Presunto transferido para a produção de Salgados e Pizzas!', 120)">
+                                    <i class="fa-solid fa-pizza-slice"></i> Usar na Produção
+                                </button>
+                                <button class="btn btn-sm btn-success mb-1 w-100" onclick="resolverProblema('linhaPresunto', 'Criado combo promocional de Sanduíches!', 120)">Criar Promoção</button>
                             </td>
                         </tr>
                     </tbody>
